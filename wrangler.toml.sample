@@ -1,0 +1,14 @@
+name = "planetisodon"
+main = "build/worker/shim.mjs"
+compatibility_date = "2023-06-28"
+kv_namespaces = [
+    { binding = "planetisodongoogle_pkce_code_verifier", id = "<your-kv-id>" },
+    { binding = "planetisodon_google_csrf_state", id = "<your-kv-id>" },
+]
+workers_dev = false
+
+[build]
+command = "cargo install -q worker-build && worker-build --release"
+
+[vars]
+GOOGLE_AUTH_REDIRECT_URI = "https://planetisodon.eddibb.cc/auth"

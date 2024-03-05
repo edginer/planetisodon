@@ -11,6 +11,24 @@ wasm-opt = false
 crate-type = ["cdylib"]
 
 [dependencies]
+anyhow = "1.0.80"
+async-trait = "0.1.77"
+base64 = "0.21.7"
+chrono = "0.4.34"
+cookie = "0.18.0"
+encoding_rs = "0.8.33"
+getrandom = { version = "0.2.12", features = ["js"] }
+oauth2 = "4.4.2"
+planetscale-driver = { version = "0.5.1", default-features = false }
+pwhash = "1.0.0"
+regex = "1.10.3"
+reqwest = { version = "0.11.24", features = ["multipart", "json"] }
+serde = { version = "1.0.197", features = ["derive"] }
+serde_json = "1.0.114"
+sha1 = { version = "0.10.6", default-features = false }
+sha3 = { version = "0.10.8", default-features = false }
+tokio = { version = "1.36.0", features = ["sync"] }
+uuid = { version = "1.7.0", features = ["v7", "js", "v4"] }
 worker = "0.0.18"
 
 [profile.release]
