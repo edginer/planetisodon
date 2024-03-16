@@ -7,6 +7,7 @@ use routes::{
 };
 use std::{
     collections::HashMap,
+    str::FromStr,
     sync::{
         atomic::{AtomicU64, Ordering},
         Arc, OnceLock,
@@ -132,8 +133,24 @@ async fn main(req: Request, env: Env, _ctx: Context) -> Result<Response> {
         boards: get_boards(repo).await,
     })
     .get("/", |_, _| {
-        let html = include_str!("static/index.html");
+        let html = include_str!("../planetisodon-client/dist/index.html");
         Response::from_html(html)
+    })
+    .get("/index.js", |_, _| {
+        let html = include_str!("../planetisodon-client/dist/index.js");
+        Response::ok(html).map(|mut x| {
+            let _ = x
+                .headers_mut()
+                .set("Content-Type", "application/javascript");
+            x
+        })
+    })
+    .get("/index.css", |_, _| {
+        let html = include_str!("../planetisodon-client/dist/index.css");
+        Response::ok(html).map(|mut x| {
+            let _ = x.headers_mut().set("Content-Type", "text/css");
+            x
+        })
     })
     .get_async("/auth", route_auth)
     .post_async("/test/bbs.cgi", route_bbs_cgi)
@@ -142,6 +159,24 @@ async fn main(req: Request, env: Env, _ctx: Context) -> Result<Response> {
     .get_async("/:boardKey/dat/:threadKey", route_dat)
     .get("/:boardKey/head.txt", |_, _| {
         response_shift_jis_text_plain_with_cache("<a href=\"/\">こちらへ</a>", 3600)
+    })
+    .get("/:boardKey/", |_, _| {
+        let html = include_str!("../planetisodon-client/dist/index.html");
+        Response::from_html(html)
+    })
+    .get("/:boardKey/:threadKey", |_, _| {
+        let html = include_str!("../planetisodon-client/dist/index.html");
+        Response::from_html(html)
+    })
+    .get("/test/read.cgi/:boardKey/:threadKey", |_, ctx| {
+        let board_key = ctx
+            .param("boardKey")
+            .ok_or(worker::Error::RouteNoDataError)?;
+        let thread_key = ctx
+            .param("threadKey")
+            .ok_or(worker::Error::RouteNoDataError)?;
+
+        Response::redirect(Url::from_str(&format!("/{board_key}/{thread_key}/"))?)
     })
     .run(req, env)
     .await

@@ -14,7 +14,7 @@ pub async fn route_subject_txt(req: Request, ctx: RouteContext<Ctx>) -> Result<R
         .contains("chMate")
         || req
             .headers()
-            .get("X-Request-From-Planetisodon-Client")
+            .get("X-ThreadList-AuthorId-Supported")
             .ok()
             .flatten()
             .unwrap_or_default()

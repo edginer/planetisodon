@@ -1,5 +1,5 @@
-import { useEffect, useState } from "react";
-import { Outlet, useParams, Link } from "react-router-dom";
+import { Outlet, useNavigate, useParams } from "react-router-dom";
+import { useSuspenseQuery } from "@tanstack/react-query";
 
 interface Thread {
   title: string;
@@ -35,47 +35,59 @@ const convertSubjectTextToThreadList = (text: string): Thread[] => {
 
 const convertLinuxTimeToDateString = (linuxTime: number): string => {
   const date = new Date(linuxTime * 1000);
-  return date.toISOString();
+  return `${date.getFullYear()}/${date.getMonth()}/${date.getDay()} ${date.getHours()}:${date.getMinutes()}`;
 };
 
 const ThreadListView = () => {
+  let outlet = Outlet({});
+  if (outlet == null) {
+    outlet = <div />;
+  }
   const params = useParams();
-  const [threadList, setThreadList] = useState<Thread[]>([]);
-  useEffect(() => {
-    const f = async () => {
+  const navigate = useNavigate();
+
+  const { data } = useSuspenseQuery({
+    queryKey: ["threadList", params.boardKey],
+    queryFn: async () => {
       const res = await fetch(`/${params.boardKey}/subject.txt`, {
         headers: {
           "Content-Type": "text/plain; charset=shift_jis",
-          "X-Request-From-Planetisodon-Client": "true",
+          "X-ThreadList-AuthorId-Supported": "true",
         },
       });
       const sjisText = await res.blob();
       const arrayBuffer = await sjisText.arrayBuffer();
       const text = new TextDecoder("shift_jis").decode(arrayBuffer);
-      const newThreadList = convertSubjectTextToThreadList(text);
 
-      setThreadList(newThreadList);
-    };
-    f();
-  }, [params.boardKey, setThreadList]);
+      return convertSubjectTextToThreadList(text);
+    },
+  });
 
   return (
     <>
       <div className="sm:w-96">
-        <div className="">
-          {threadList.map((thread) => (
-            <div key={thread.id}>
-              <Link to={`/${params.boardKey}/${thread.id}`}>
-                {thread.title}
-              </Link>
-              <span>({thread.responseCount})</span>
-              <span>{thread.authorId}</span>
-              <span>{convertLinuxTimeToDateString(thread.id)}</span>
-            </div>
+        <div className="divide-y-2 divide-gray-700 flex flex-col">
+          {data.map((thread) => (
+            <button
+              key={thread.id}
+              className="hover:bg-gray-200 cursor-default text-left block"
+              onClick={() => {
+                navigate(`/${params.boardKey}/${thread.id}`);
+              }}
+            >
+              <div>
+                <span>{thread.title}</span>
+                <span> ({thread.responseCount})</span>
+              </div>
+              <div>
+                <span>{convertLinuxTimeToDateString(thread.id)}</span>
+                <span> ID:{thread.authorId}</span>
+              </div>
+            </button>
           ))}
         </div>
       </div>
-      <Outlet />
+      {outlet}
     </>
   );
 };

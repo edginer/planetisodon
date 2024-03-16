@@ -1,6 +1,6 @@
-import { useEffect, useState } from "react";
+import { useState } from "react";
 import { useParams } from "react-router-dom";
-// import iconv from "iconv-lite";
+import { useSuspenseQuery } from "@tanstack/react-query";
 import Encoding from "encoding-japanese";
 
 interface Response {
@@ -60,21 +60,33 @@ const postResponse = async (
   mail: string,
   body: string
 ) => {
-  const params = new URLSearchParams({
+  const params = {
     submit: convertToSjisText("書き込む"),
     mail: convertToSjisText(mail),
     FROM: convertToSjisText(name),
     MESSAGE: convertToSjisText(body),
     bbs: boardKey,
     key: threadKey,
-  });
+  };
 
   const res = await fetch(`/test/bbs.cgi`, {
     method: "POST",
     headers: {
       "Content-Type": "application/x-www-form-urlencoded",
     },
-    body: params.toString(),
+    body:
+      "submit=" +
+      params.submit +
+      "&mail=" +
+      params.mail +
+      "&FROM=" +
+      params.FROM +
+      "&MESSAGE=" +
+      params.MESSAGE +
+      "&bbs=" +
+      params.bbs +
+      "&key=" +
+      params.key,
   });
   if (!res.ok) {
     throw new Error(`Failed to post a response: ${res.statusText}`);
@@ -83,12 +95,13 @@ const postResponse = async (
 
 const ThreadView = () => {
   const params = useParams();
-  const [threadTitle, setThreadTitle] = useState("");
-  const [responseList, setResponseList] = useState<Response[]>([]);
   const [body, setBody] = useState("");
+  const [name, setName] = useState("");
+  const [mail, setMail] = useState("");
 
-  useEffect(() => {
-    const f = async () => {
+  const { data } = useSuspenseQuery({
+    queryKey: ["thread", params.boardKey, params.threadKey],
+    queryFn: async () => {
       const res = await fetch(
         `/${params.boardKey}/dat/${params.threadKey}.dat`,
         {
@@ -100,28 +113,37 @@ const ThreadView = () => {
       const sjisText = await res.blob();
       const arrayBuffer = await sjisText.arrayBuffer();
       const text = new TextDecoder("shift_jis").decode(arrayBuffer);
-      const [threadTitle, responseList] = convertThreadTextToResponseList(text);
-      setResponseList(responseList);
-      setThreadTitle(threadTitle);
-    };
-    f();
-  }, [params.boardKey, params.threadKey, setThreadTitle, setResponseList]);
+      return convertThreadTextToResponseList(text);
+    },
+  });
 
   return (
     <div>
-      <h2>{threadTitle}</h2>
+      <h2>{data[0]}</h2>
       <div className="flex">
         <ul>
-          {responseList.map((response) => (
+          {data[1].map((response) => (
             <li key={response.id}>
               <div>{response.name}</div>
               <div>{response.date}</div>
-              <div>{response.body}</div>
+              <div dangerouslySetInnerHTML={{ __html: response.body }} />
             </li>
           ))}
         </ul>
       </div>
       <div className="flex-grow">
+        <div className="flex flex-col">
+          <input
+            type="text"
+            placeholder="Name"
+            onChange={(e) => setName(e.target.value)}
+          />
+          <input
+            type="text"
+            placeholder="Mail"
+            onChange={(e) => setMail(e.target.value)}
+          />
+        </div>
         <textarea
           className="w-full"
           placeholder="Post a response"
@@ -129,7 +151,7 @@ const ThreadView = () => {
         ></textarea>
         <button
           onClick={() =>
-            postResponse(params.boardKey!, params.threadKey!, "", "", body)
+            postResponse(params.boardKey!, params.threadKey!, name, mail, body)
           }
         >
           Post
