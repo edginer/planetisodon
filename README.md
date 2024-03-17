@@ -17,3 +17,7 @@ Experimental anonymous BBS system on Cloudflare workers
 - https://planetisodon.eddibb.cc/
 - https://planetisodon.eddibb.cc/planetisodon/
   - 専ブラ登録用
+
+## License
+
+https://github.com/edginer/eddiner のライセンスに常に追従する
