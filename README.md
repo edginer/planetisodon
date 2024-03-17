@@ -14,4 +14,6 @@ Experimental anonymous BBS system on Cloudflare workers
 
 ## Demo
 
-https://planetisodon.eddibb.cc/planetisodon/
+- https://planetisodon.eddibb.cc/
+- https://planetisodon.eddibb.cc/planetisodon/
+  - 専ブラ登録用
