@@ -35,7 +35,9 @@ const convertSubjectTextToThreadList = (text: string): Thread[] => {
 
 const convertLinuxTimeToDateString = (linuxTime: number): string => {
   const date = new Date(linuxTime * 1000);
-  return `${date.getFullYear()}/${date.getMonth()}/${date.getDay()} ${date.getHours()}:${date.getMinutes()}`;
+  return `${date.getFullYear()}/${
+    date.getMonth() + 1
+  }/${date.getDate()} ${date.getHours()}:${date.getMinutes()}`;
 };
 
 const ThreadListView = () => {
