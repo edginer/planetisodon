@@ -4,6 +4,11 @@ settings:
   autoInstallPeers: true
   excludeLinksFromLockfile: false
 
+overrides:
+  object-path@<0.11.6: '>=0.11.6'
+  object-path@<0.11.5: '>=0.11.5'
+  object-path@<0.11.8: '>=0.11.8'
+
 dependencies:
   '@tanstack/react-query':
     specifier: ^5.25.0
@@ -2219,9 +2224,9 @@ packages:
     engines: {node: '>= 0.4'}
     dev: true
 
-  /object-path@0.6.0:
-    resolution: {integrity: sha512-fxrwsCFi3/p+LeLOAwo/wyRMODZxdGBtUlWRzsEpsUVrisZbEfZ21arxLGfaWfcnqb8oHPNihIb4XPE8CQPN5A==}
-    engines: {node: '>=0.8.0'}
+  /object-path@0.11.8:
+    resolution: {integrity: sha512-YJjNZrlXJFM42wTBn6zgOJVar9KFJvzx6sTWDte8sWZF//cnjl0BxHNpfZx+ZffXX63A9q0b1zsFiBX4g4X5KA==}
+    engines: {node: '>= 10.12.0'}
     dev: false
 
   /object.assign@4.1.5:
@@ -2718,7 +2723,7 @@ packages:
   /sort-by@1.2.0:
     resolution: {integrity: sha512-aRyW65r3xMnf4nxJRluCg0H/woJpksU1dQxRtXYzau30sNBOmf5HACpDd9MZDhKh7ALQ5FgSOfMPwZEtUmMqcg==}
     dependencies:
-      object-path: 0.6.0
+      object-path: 0.11.8
     dev: false
 
   /source-map-js@1.0.2:
